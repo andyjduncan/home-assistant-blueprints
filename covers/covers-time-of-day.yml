@@ -1,0 +1,37 @@
+blueprint:
+  name: Covers - Time of Day
+  description: >
+    Controls a cover based on the time of day.  The cover is controlled
+    indirectly via a select helper.  The first entry in the select is the
+    night time level, the last is the day time.  This allows for intermediate
+    levels for blinds, etc.
+  domain: automation
+  input:
+    cover_level:
+      name: Cover Level
+      selector:
+        entity:
+          domain: input_select
+trigger:
+  - platform: state
+    entity_id: input_select.time_of_day
+    to: Day
+    id: to_day  
+  - platform: state
+    entity_id: input_select.time_of_day
+    to: Evening
+    id: to_evening
+action:
+  - if:
+    - condition: trigger
+      id: to_day
+    then:
+      service: input_select.select_last
+      target:
+        entity_id: !input cover_level
+    else:
+      service: input_select.select_first
+      target:
+        entity_id: !input cover_level
+
+

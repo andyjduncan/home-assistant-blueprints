@@ -1,0 +1,31 @@
+blueprint:
+  name: Covers - Movement
+  description: >
+    Controls a cover based on a select input.  The cover position will be set to
+    the value of the select.  This is intended to be used with a select helper
+    for covers with several positions.
+  domain: automation
+  input:
+    cover_level_entity:
+      name: Cover Level
+      selector:
+        entity:
+          domain: input_select
+    cover_entity:
+      name: Cover Entity
+      selector:
+        entity:
+          domain: cover
+          multiple: true
+variables:
+  cover_level_entity: !input cover_level_entity
+  cover_level: "{{ states(cover_level_entity) | int }}"
+trigger:
+  - platform: state
+    entity_id: !input cover_level_entity
+action:
+  - service: cover.set_cover_position
+    target:
+      entity_id: !input cover_entity
+    data:
+      position: "{{ cover_level }}"
