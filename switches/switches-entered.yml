@@ -1,0 +1,38 @@
+blueprint:
+  name: Switch - Entered
+  description: >
+    Controls a switch based on an entered toggle
+  domain: automation
+  input:
+    entered_toggle:
+      name: Entered Toogle
+      selector:
+        entity:
+          domain: input_boolean
+    switch:
+      name: Switch
+      selector:
+        entity:
+          domain: switch
+
+trigger:
+  - platform: state
+    entity_id:
+      - !input entered_toggle
+condition: []
+action:
+  - if:
+      condition: state
+      entity_id: !input entered_toggle
+      state: "on"
+    then:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: !input switch
+    else:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: !input switch
+mode: single
