@@ -1,0 +1,66 @@
+blueprint:
+  name: Button - eWeLink WB01
+  description: >
+    Actions for eWeLink WB01 ZHA button.  Binds actions to press, double press,
+    and long press
+  domain: automation
+  input:
+    button_id:
+      name: Button
+      selector:
+        device:
+          filter:
+            - manufacturer: eWeLink
+              model: WB01
+    press_action:
+      name: Press Action
+      description: Action to perform on Press.
+      default: []
+      selector:
+        action: {}
+    double_press_action:
+      name: Double Press Action
+      description: Action to perform on Double Press.
+      default: []
+      selector:
+        action: {}
+    hold_action:
+      name: Hold Action
+      description: Action to perform on Hold.
+      default: []
+      selector:
+        action: {}
+trigger:
+  - device_id: !input button_id
+    domain: zha
+    platform: device
+    type: remote_button_short_press
+    subtype: button
+    id: press
+  - device_id: !input button_id
+    domain: zha
+    platform: device
+    type: remote_button_double_press
+    subtype: button
+    id: double_press
+  - device_id: !input button_id
+    domain: zha
+    platform: device
+    type: remote_button_long_press
+    subtype: button
+    id: long_press
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: press
+        sequence: !input press_action
+      - conditions:
+          - condition: trigger
+            id: double_press
+        sequence: !input double_press_action
+      - conditions:
+          - condition: trigger
+            id: long_press
+        sequence: !input double_press_action
+mode: single
