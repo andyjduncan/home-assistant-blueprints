@@ -1,0 +1,76 @@
+blueprint:
+  name: Movements Zone Entered
+  description: >
+    Track when a zone is entered for the first time in a day.
+  domain: automation
+  input:
+    movements_helper:
+      name: Movements Counter Helper
+      selector:
+        entity:
+          domain: counter
+    entered_helper:
+      name: Entered Toogle Helper
+      selector:
+        entity:
+          domain: input_boolean
+
+trigger:
+  - platform: state
+    entity_id: !input movements_helper
+    above: 0
+    id: motion
+  - platform: state
+    entity_id:
+      - input_select.time_of_day
+    to: "Night"
+    id: night
+  - platform: state
+    entity_id:
+      - input_boolean.occupied
+    to: "off"
+    id: unoccupied
+  - platform: state
+    entity_id:
+      - input_boolean.occupied
+    to: "on"
+    id: occupied
+action:
+  - choose:
+      - conditions:
+          - condition: or
+            conditions:
+              - condition: and
+                conditions:
+                  - condition: trigger # If motion detected during day, turn on
+                    id: motion
+                  - condition: or
+                    conditions:
+                      - condition: state
+                        entity_id: input_select.time_of_day
+                        state: Day
+                      - condition: state
+                        entity_id: input_select.time_of_day
+                        state: Evening
+              - condition: and
+                conditions:
+                  - condition: trigger # If change to occupied while detecting motion, turn on
+                    id: occupied
+                  - condition: state
+                    entity_id: !input movements_helper
+                    above: 0
+        sequence:
+          - service: input_boolean.turn_on
+            target:
+              entity_id: !input entered_helper
+      - conditions: # If night or property unoccupied, turn off
+          - condition: or
+            conditions:
+              - condition: trigger
+                id: night
+              - condition: trigger
+                id: unoccupied
+        sequence:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: !input entered_helper

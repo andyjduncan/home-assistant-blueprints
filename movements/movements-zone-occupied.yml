@@ -1,0 +1,33 @@
+blueprint:
+  name: Movements Zone Occupied
+  description: >
+    Track if a zone is occupied based on a movement count.
+  domain: automation
+  input:
+    movements_helper:
+      name: Movements Counter Helper
+      selector:
+        entity:
+          domain: counter
+    toggle_helper:
+      name: Occupied Toggle Helper
+      selector:
+        entity:
+          domain: input_boolean
+trigger:
+  - platform: state
+    entity_id: !input movements_helper
+action:
+  - if:
+    - condition: numeric_state
+      entity_id: !input movements_helper
+      below: 1
+    then:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: !input toggle_helper
+    else:
+      - service: input_boolean.turn_on
+        target:
+          entity_id: !input toggle_helper
+mode: restart

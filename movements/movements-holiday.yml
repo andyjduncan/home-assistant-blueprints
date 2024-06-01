@@ -1,0 +1,54 @@
+blueprint:
+  name: Movements Holiday Mode
+  description: >
+    Increment a movement counter on a timer trigger and a percentage chance.
+    A boolean input determines whether or not to run this automation, e.g. to
+    implement a holiday mode.
+  domain: automation  
+  input:
+    enabled_helper:
+      name: Enabled
+      selector:
+        entity:
+          domain: input_boolean
+    trigger_percentage:
+      name: Percentage Chance
+      selector:
+        number:
+          min: 1
+          max: 100
+          step: 1
+          mode: box
+    movements_helper:
+      name: Movements Counter Helper
+      selector:
+        entity:
+          domain: counter
+    motion_triggered_increment:
+      name: Motion Triggered Increment
+      selector:
+        number:
+          min: 1
+          max: 60
+          step: 1
+          mode: box
+variables:
+  trigger_percentage: !input trigger_percentage
+trigger:
+  - platform: time_pattern
+    minutes: "*"
+condition:
+  - condition: state
+    entity_id: !input enabled_helper
+    state: "on"
+  - condition: template
+    value_template: "{{ range(1, 101) | random <  trigger_percentage }}"
+action:
+  - repeat:
+      count: !input motion_triggered_increment
+      sequence:
+        - service: counter.increment
+          data: {}
+          target:
+            entity_id: !input movements_helper
+mode: single

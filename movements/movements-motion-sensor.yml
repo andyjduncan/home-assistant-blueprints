@@ -1,0 +1,77 @@
+blueprint:
+  name: Movements Motion Sensor
+  description: >
+    Track movements recorded by a motion sensor over time.  A tally of movements
+    is tracked in a leaky bucket counter, and a boolean helper indicates when
+    motion is detected.  This is intended for cases where motion is not reliably
+    detected, e.g. controlling lights in a room where people are mostly seated.
+  domain: automation
+  input:
+    motion_sensor:
+      name: Motion Sensor
+      selector:
+        entity:
+          domain: binary_sensor
+          device_class: motion
+    movements_helper:
+      name: Movements Counter Helper
+      selector:
+        entity:
+          domain: counter
+    motion_detected_increment:
+      name: Motion Detected Increment
+      selector:
+        number:
+          min: 1
+          max: 60
+          step: 1
+          mode: box
+
+trigger:
+  - platform: state
+    entity_id: !input motion_sensor
+    to: 'on'
+    id: motion
+  - platform: time_pattern
+    minutes: /1
+    id: time
+condition: []
+action:
+  - if:
+      - condition: trigger
+        id: motion
+    then:
+      - repeat:
+          count: !input motion_detected_increment
+          sequence:
+            - service: counter.increment
+              data: {}
+              target:
+                entity_id: !input movements_helper
+  - if:
+      - condition: trigger
+        id: time
+    then:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: !input motion_sensor
+                state: 'on'
+            sequence:
+              - service: counter.increment
+                target:
+                  entity_id: !input movements_helper
+          - conditions:
+            - condition: or
+              conditions:
+                - condition: state
+                  entity_id: !input motion_sensor
+                  state: 'off'
+                - condition: state
+                  entity_id: !input motion_sensor
+                  state: 'unavailable'
+            sequence:
+              - service: counter.decrement
+                target:
+                  entity_id: !input movements_helper
+mode: restart
