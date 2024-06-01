@@ -16,7 +16,7 @@ blueprint:
           domain: input_boolean
 
 trigger:
-  - platform: state
+  - platform: numeric_state
     entity_id: !input movements_helper
     above: 0
     id: motion
@@ -56,7 +56,7 @@ action:
                 conditions:
                   - condition: trigger # If change to occupied while detecting motion, turn on
                     id: occupied
-                  - condition: state
+                  - condition: numeric_state
                     entity_id: !input movements_helper
                     above: 0
         sequence:
