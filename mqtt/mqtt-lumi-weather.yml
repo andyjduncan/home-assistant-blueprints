@@ -1,0 +1,58 @@
+blueprint:
+  name: MQTT - LUMI weather
+  description: >
+    Extract the various sensor readings from a LUMI weather device sent over
+    MQTT.  For example, from a remote Tasmota Zigbee hub.  The extracted
+    readings are republished on separate MQTT topics so they can be combined
+    into an MQTT device.
+  domain: automation
+  input:
+    source_topic:
+      name: Source Topic
+      selector:
+        text:
+          type: text
+    device_id:
+      name: Device Id
+      selector:
+        text:
+          type: text
+trigger_variables:
+  trigger_device_id: !input device_id
+variables:
+  device_id: "{{ trigger.payload_json.ZbReceived[trigger_device_id].Device }}"
+  temperature: "{{ trigger.payload_json.ZbReceived[trigger_device_id].Temperature }}"
+  humidity: "{{ trigger.payload_json.ZbReceived[trigger_device_id].Humidity }}"
+  pressure: "{{ trigger.payload_json.ZbReceived[trigger_device_id].Pressure }}"
+  battery: "{{ trigger.payload_json.ZbReceived[trigger_device_id].BatteryPercentage }}"
+trigger:
+  - platform: mqtt
+    topic: !input source_topic
+    payload: "{{ trigger_device_id }}"
+    value_template: "{{ value_json.ZbReceived[trigger_device_id].Device }}"
+action:
+  - service: mqtt.publish
+    data:
+      qos: 0
+      retain: false
+      topic_template: homeassistant/sensor/{{ device_id }}/temperature
+      payload_template: "{{ temperature }}"
+  - service: mqtt.publish
+    data:
+      qos: 0
+      retain: false
+      topic_template: homeassistant/sensor/{{ device_id }}/humidity
+      payload_template: "{{ humidity }}"
+  - service: mqtt.publish
+    data:
+      qos: 0
+      retain: false
+      topic_template: homeassistant/sensor/{{ device_id }}/pressure
+      payload_template: "{{ pressure }}"
+  - service: mqtt.publish
+    data:
+      qos: 0
+      retain: false
+      topic_template: homeassistant/sensor/{{ device_id }}/battery
+      payload_template: "{{ battery }}"
+mode: single
