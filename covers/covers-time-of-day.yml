@@ -12,6 +12,12 @@ blueprint:
       selector:
         entity:
           domain: input_select
+    close_only:
+      name: Close Only
+      selector:
+        boolean: {}
+variables:
+  close_only: !input close_only
 trigger:
   - platform: state
     entity_id: input_select.time_of_day
@@ -23,8 +29,12 @@ trigger:
     id: to_evening
 action:
   - if:
-    - condition: trigger
-      id: to_day
+    - condition: and
+      conditions:
+      - condition: trigger
+        id: to_day
+      - condition: template
+        value_template: "{{ not close_only }}"
     then:
       service: input_select.select_last
       target:
@@ -33,5 +43,3 @@ action:
       service: input_select.select_first
       target:
         entity_id: !input cover_level
-
-
