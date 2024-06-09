@@ -1,0 +1,39 @@
+blueprint:
+  name: Camera Privacy
+  description: >
+    Enables or disables camera privacy mode based on property occupation.
+  domain: automation
+  input:
+    privacy_switch:
+      name: Privacy Switch
+      selector:
+        entity:
+          domain: switch
+          multiple: true
+trigger:
+  - platform: state
+    entity_id:
+      - input_boolean.occupied
+    to: "on"
+    id: to_occupied
+  - platform: state
+    entity_id:
+      - input_boolean.occupied
+    to: "off"
+    id: to_unoccupied
+action:
+  - if:
+      - condition: trigger
+        id: to_occupied
+    then:
+      - service: switch.turn_on
+        target:
+          entity_id: !input privacy_switch
+  - if:
+      - condition: trigger
+        id: to_unoccupied
+    then:
+      - service: switch.turn_off
+        target:
+          entity_id: !input privacy_switch
+mode: single
