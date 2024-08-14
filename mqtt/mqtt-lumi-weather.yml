@@ -31,28 +31,28 @@ trigger:
     payload: "{{ trigger_device_id }}"
     value_template: "{{ value_json.ZbReceived[trigger_device_id].Device }}"
 action:
-  - service: mqtt.publish
+  - action: mqtt.publish
     data:
       qos: 0
       retain: false
-      topic_template: homeassistant/sensor/{{ device_id }}/temperature
-      payload_template: "{{ temperature }}"
-  - service: mqtt.publish
+      topic: homeassistant/sensor/{{ device_id }}/temperature
+      payload: "{{ temperature }}"
+  - action: mqtt.publish
     data:
       qos: 0
       retain: false
-      topic_template: homeassistant/sensor/{{ device_id }}/humidity
-      payload_template: "{{ humidity }}"
-  - service: mqtt.publish
+      topic: homeassistant/sensor/{{ device_id }}/humidity
+      payload: "{{ humidity }}"
+  - action: mqtt.publish
     data:
       qos: 0
       retain: false
-      topic_template: homeassistant/sensor/{{ device_id }}/pressure
-      payload_template: "{{ pressure }}"
-  - service: mqtt.publish
+      topic: homeassistant/sensor/{{ device_id }}/pressure
+      payload: "{{ pressure }}"
+  - action: mqtt.publish
     data:
       qos: 0
       retain: false
-      topic_template: homeassistant/sensor/{{ device_id }}/battery
-      payload_template: "{{ battery }}"
+      topic: homeassistant/sensor/{{ device_id }}/battery
+      payload: "{{ battery }}"
 mode: single
