@@ -35,14 +35,14 @@ triggers:
     above: !input threshold_temperature
   - trigger: state
     entity_id: !input occupied_toggle
-    to: "on"
+    to: "off"
 conditions:
   - condition: numeric_state
     entity_id: !input temperature_sensor
-    below: !input threshold_temperature
+    above: !input threshold_temperature
   - condition: state
     entity_id: !input occupied_toggle
-    state: "on"
+    state: "off"
 actions:
   - action: climate.set_hvac_mode
     target:
