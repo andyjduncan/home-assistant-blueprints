@@ -1,0 +1,52 @@
+blueprint:
+  name: Room Heating On
+  description: >
+    Turn on heating in an occupied room when the temperature falls below a
+    threshold.
+  domain: automation  
+  input:
+    threshold_temperature:
+      name: Threshold Temperature
+      selector:
+        number:
+          min: 5
+          max: 30
+          step: 1
+          mode: box
+    occupied_toggle:
+      name: Occupied Toggle
+      selector:
+        entity:
+          domain: input_boolean
+    temperature_sensor:
+      name: Temperature Sensor
+      selector:
+        entity:
+          device_class: temperature
+    radiator_valve:
+      name: Radiator Valve
+      selector:
+        entity:
+          domain: climate
+
+triggers:
+  - trigger: numeric_state
+    entity_id: !input temperature_sensor
+    below: !input threshold_temperature
+  - trigger: state
+    entity_id: !input occupied_toggle
+    to: "on"
+conditions:
+  - condition: numeric_state
+    entity_id: !input temperature_sensor
+    below: !input threshold_temperature
+  - condition: state
+    entity_id: !input occupied_toggle
+    state: "on"
+actions:
+  - action: climate.set_hvac_mode
+    target:
+      entity_id: !input radiator_valve
+    data:
+      hvac_mode: heat
+mode: single
