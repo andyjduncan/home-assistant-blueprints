@@ -14,6 +14,7 @@ blueprint:
       selector:
         entity:
           domain: light
+          multiple: true
     time_of_day:
       name: Time of day
       selector:
